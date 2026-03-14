@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <OutputType>Library</OutputType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RootNamespace>LineProperties</RootNamespace>
+    <AssemblyName>LineProperties</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!--
+    AutoCAD 2026 .NET API references.
+    Update HintPath if your AutoCAD installation is in a different location.
+  -->
+  <ItemGroup>
+    <Reference Include="acdbmgd">
+      <HintPath>C:\Program Files\Autodesk\AutoCAD 2026\acdbmgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="acmgd">
+      <HintPath>C:\Program Files\Autodesk\AutoCAD 2026\acmgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcCoreMgd">
+      <HintPath>C:\Program Files\Autodesk\AutoCAD 2026\AcCoreMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!--
+    Build píše do bin\; při Release buildu se hned nasadí do složky pluginu (zavřete AutoCAD před buildem).
+  -->
+  <PropertyGroup>
+    <AutoCADPluginsPath>$(USERPROFILE)\AppData\Roaming\Autodesk\ApplicationPlugins\LineProperties.bundle</AutoCADPluginsPath>
+  </PropertyGroup>
+  <Target Name="DeployToAutoCAD" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(AutoCADPluginsPath)\Contents" />
+    <ItemGroup>
+      <DeployFiles Include="$(OutputPath)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\" />
+    <Copy SourceFiles="$(ProjectDir)PackageContents.xml" DestinationFolder="$(AutoCADPluginsPath)\" />
+    <Message Importance="high" Text="Plugin zkopírován do: $(AutoCADPluginsPath)\Contents\ - spusťte AutoCAD pro načtení." />
+  </Target>
+  <Target Name="DeployAfterBuild" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <MakeDir Directories="$(AutoCADPluginsPath)\Contents" />
+    <ItemGroup>
+      <DeployFiles Include="$(OutputPath)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\" />
+    <Copy SourceFiles="$(ProjectDir)PackageContents.xml" DestinationFolder="$(AutoCADPluginsPath)\" />
+    <Message Importance="high" Text="Deploy: $(AutoCADPluginsPath)\Contents\" />
+  </Target>
+</Project>

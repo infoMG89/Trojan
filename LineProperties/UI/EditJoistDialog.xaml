@@ -1,0 +1,116 @@
+<Window x:Class="LineProperties.UI.EditJoistDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Joist Smart Data"
+        Width="420" Height="380"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#FFF5F5F5"
+        FontFamily="Segoe UI"
+        FontSize="13">
+
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="Edit Joist Smart Data" FontSize="18" FontWeight="SemiBold"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Mark:"/>
+        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtMark" Text="{Binding Mark, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Type/Desig:"/>
+        <ComboBox Grid.Row="2" Grid.Column="4" x:Name="CmbDesignation" IsEditable="True"
+                  Text="{Binding Designation, UpdateSourceTrigger=PropertyChanged}"
+                  SelectionChanged="CmbDesignation_SelectionChanged"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="EXTL:"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtExtL" Text="{Binding ExtensionLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="4" Grid.Column="3" Text="EXTR:"/>
+        <TextBox Grid.Row="4" Grid.Column="4" x:Name="TxtExtR" Text="{Binding ExtensionRight, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="CL:"/>
+        <TextBox Grid.Row="6" Grid.Column="1" x:Name="TxtCL" Text="{Binding CantileverLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="6" Grid.Column="3" Text="CR:"/>
+        <TextBox Grid.Row="6" Grid.Column="4" x:Name="TxtCR" Text="{Binding CantileverRight, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="SHL:"/>
+        <TextBox Grid.Row="8" Grid.Column="1" x:Name="TxtSHL" Text="{Binding ShoeLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="8" Grid.Column="3" Text="SHR:"/>
+        <TextBox Grid.Row="8" Grid.Column="4" x:Name="TxtSHR" Text="{Binding ShoeRight, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="10" Grid.Column="0" Text="BCXL:"/>
+        <TextBox Grid.Row="10" Grid.Column="1" x:Name="TxtBCXL" Text="{Binding BridgingLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="10" Grid.Column="3" Text="BCXR:"/>
+        <TextBox Grid.Row="10" Grid.Column="4" x:Name="TxtBCXR" Text="{Binding BridgingRight, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <CheckBox Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ChkTieJoist"
+                  Content="Tie Joist" IsChecked="{Binding IsTieJoist}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="12" Grid.Column="3" Text="Active Loads:"/>
+        <TextBox Grid.Row="12" Grid.Column="4" x:Name="TxtActiveLoads" Text="{Binding ActiveLoads, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="14" Grid.Column="0" Text="Sequence/Zone:"/>
+        <TextBox Grid.Row="14" Grid.Column="1" Grid.ColumnSpan="4" x:Name="TxtSequenceZone" Text="{Binding SequenceZone, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="16" Grid.Column="0" Text="Depth:"/>
+        <TextBlock Grid.Row="16" Grid.Column="1" x:Name="TxtDepth" Text="{Binding Depth, StringFormat=F2}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="16" Grid.Column="3" Text="Weight:"/>
+        <TextBlock Grid.Row="16" Grid.Column="4" x:Name="TxtWeight" Text="{Binding Weight, StringFormat=F2}" VerticalAlignment="Center"/>
+
+        <StackPanel Grid.Row="18" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
+            <Button Content="OK" Width="90" Margin="0,0,10,0" Click="BtnOk_Click" IsDefault="True"/>
+            <Button Content="Cancel" Width="90" Background="#FF555555" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
