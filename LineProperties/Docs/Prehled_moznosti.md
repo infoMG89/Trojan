@@ -10,6 +10,7 @@ Plugin rozšiřuje AutoCAD o funkce pro ocelové konstrukce (SJI joisty, metal d
 
 - **Kreslení joistů** – čáry s MORAVIO_SMART XData (designace, mark, délka, …)
 - **Kreslení decku** – pole čar s typem decku a gauge
+- **AISC steel shapes** – W-shapes a C-channels (14th Edition), nosníky s MORAVIO_SMART
 - **Editace** – úprava vlastností joistů (designace, mark, rozšíření, …)
 - **Detekce spojů** – automatické nalezení spojů mezi joisty a deckem (geometrický dotyk)
 - **Markery spojů** – každý spoj má ID (CONN-1, …) a volitelný kód (A1, B3, C7, …)
@@ -23,15 +24,17 @@ Plugin rozšiřuje AutoCAD o funkce pro ocelové konstrukce (SJI joisty, metal d
 
 | Příkaz | Co dělá |
 |--------|---------|
-| **SMARTJOIST** | Nakreslí joist mezi dvěma body. Otevře dialog – designace (10K1, 18LH02, …), mark, rozšíření, cantilever, shoe, bridging, tie joist. |
+| **SMARTJOIST** | Nakreslí joist nebo AISC nosník mezi dvěma body. Dialog: knihovna (SJI Joists / AISC W / AISC C), designace, mark, rozšíření, cantilever, shoe, bridging, tie joist. |
 | **EDITJOIST** | Vyberte joist čáru(y) – otevře dialog s XData, umožní editaci všech vlastností. |
-| **SMARTDECK** | Vyberte typ decku (B/C/N, gauge, profil), pak dva body – nakreslí pole deck čar s rozestupem podle rib spacing. |
+| **SMARTPATTERN** | Vyberte typ decku (B/C/N, gauge, profil), pak dva body – nakreslí pole deck čar s rozestupem podle rib spacing. |
+| **AISC_SHAPE** | AISC 14th Ed – W-shapes, C-channels. Vyberte typ, designaci (W14x22, C12x25…), mark, pak dva body. |
 | **EXPORTBOM** | Exportuje BOM do Excel – všechny entity s MORAVIO_SMART (joists, deck). Save File dialog. |
 | **AUTOMARK** | Automaticky přiřadí Mark (J1, J2, … TJ1 pro tie joists) shodným joistům. Přidá značení délky doprostřed. |
-| **LINEPROPLIST** | Seznam všech joistů a deck prvků s MORAVIO_SMART (Mark, Type, Designation, Layer, Span). |
+| **SMARTJOIST_LIST** | Seznam všech joistů a deck prvků s MORAVIO_SMART (Mark, Type, Designation, Layer, Span). |
 | **CONNECTIONS** | Detekuje spoje mezi joisty a deckem, nakreslí modré markery (kruhy) s ID. Pak výběr markeru pro přiřazení kódu spoje. |
 | **CONNECTION_MARKERS** | Vyberte marker – přiřaďte kód spoje (A1, B3, C7, …) v dialogu. |
-| **CONNECTION_LIST** | Pro každý connection marker vytvoří layout ze šablony. Vyplní CONNECTION_ID, CONNECTION_CODE a parametrické rozměry (DIM_*). |
+| **CONNECTION_LIST** | Popup okno s přehledem všech spojů – ID, typ, kód, mezi kterými prvky. |
+| **CONNECTION_SHEET** | Pro každý connection marker vytvoří layout ze šablony. Vyplní CONNECTION_ID, CONNECTION_CODE a parametrické rozměry (DIM_*). |
 | **TEMPLATE_CHECK** | Kontrola šablon – layout, počet entit, bloky. |
 
 ---
@@ -39,12 +42,13 @@ Plugin rozšiřuje AutoCAD o funkce pro ocelové konstrukce (SJI joisty, metal d
 ## 3. Typický workflow
 
 ```
-1. SMARTJOIST / SMARTDECK   → Nakreslete joisty a deck čáry
+1. SMARTJOIST / SMARTPATTERN   → Nakreslete joisty a deck čáry
 2. EDITJOIST                → Upravte designace, marky (volitelně)
 3. AUTOMARK                 → Automatické značení J1, J2, … a délek
 4. CONNECTIONS              → Detekce spojů, markery, přiřazení kódů
-5. CONNECTION_LIST          → Vytvoření sheetů ze šablon
-6. EXPORTBOM                → Export kusovníku do Excelu
+5. CONNECTION_LIST          → Přehled spojů
+6. CONNECTION_SHEET         → Vytvoření sheetů ze šablon
+7. EXPORTBOM                → Export kusovníku do Excelu
 ```
 
 ---
@@ -108,7 +112,7 @@ Viz `Knihovna_spoju.md`.
 
 ---
 
-## 8. Šablony pro CONNECTION_LIST
+## 8. Šablony pro CONNECTION_SHEET
 
 **Umístění:** `C:\Users\marti\OneDrive\Documents_2\Cursor\AutoCAD\Templates\`
 
@@ -131,6 +135,7 @@ Viz `Konvence_sablon.md`, `Navod_priprava_šablon.md`.
 
 - **JOISTS** – červená, joist čáry
 - **DECK** – zelená, deck čáry
+- **BEAMS** – cyan, AISC ocelové profily
 - **WALLS** – bílá
 - **COLUMNS** – žlutá
 
@@ -144,4 +149,4 @@ Markery (modré kruhy) nesou XData:
 - ConnectionId – CONN-1, CONN-2, …
 - ChosenCode – A1, B3, C7, … (volitelně)
 
-CONNECTION_LIST vytvoří pro každý marker nový layout, zkopíruje obsah šablony a vyplní atributy včetně rozměrů z MORAVIO_SMART připojených entit.
+CONNECTION_SHEET vytvoří pro každý marker nový layout, zkopíruje obsah šablony a vyplní atributy včetně rozměrů z MORAVIO_SMART připojených entit.

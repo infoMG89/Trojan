@@ -39,7 +39,13 @@ public class ConnectionsCommand
 
     private static void PickAndAssignCode(Document doc, Database db, Editor ed)
     {
-        var filter = new SelectionFilter(new[] { new TypedValue((int)DxfCode.Start, "CIRCLE") });
+        var filter = new SelectionFilter(new[]
+        {
+            new TypedValue((int)DxfCode.Operator, "<or"),
+            new TypedValue((int)DxfCode.Start, "CIRCLE"),
+            new TypedValue((int)DxfCode.Start, "LINE"),
+            new TypedValue((int)DxfCode.Operator, "or>")
+        });
         var pso = new PromptSelectionOptions();
         pso.MessageForAdding = "\nVyberte marker spoje pro přiřazení kódu (Enter = konec): ";
 

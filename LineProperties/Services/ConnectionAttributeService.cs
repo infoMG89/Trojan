@@ -21,27 +21,43 @@ public static class ConnectionAttributeService
 
             var btr = (BlockTableRecord)tr.GetObject(br.BlockTableRecord, OpenMode.ForRead);
             var blockName = btr.Name;
+            var baseBlockName = blockName.Contains('$') ? blockName.Split('$')[0] : blockName;
 
+            bool idSet = false, codeSet = false;
             foreach (ObjectId attId in br.AttributeCollection)
             {
                 var attRef = (AttributeReference)tr.GetObject(attId, OpenMode.ForWrite);
                 var tag = attRef.Tag;
 
                 if (MatchesTag(tag, ConnectionIdTags))
+                {
                     attRef.TextString = connectionId ?? "";
+                    idSet = true;
+                }
                 else if (MatchesTag(tag, ConnectionCodeTags))
+                {
                     attRef.TextString = connectionCode ?? "";
+                    codeSet = true;
+                }
                 else if (tag == "VALUE")
                 {
                     if (dimValues.TryGetValue(blockName, out var val))
                         attRef.TextString = val;
-                    else
-                    {
-                        var baseName = blockName.Contains('$') ? blockName.Split('$').LastOrDefault() ?? blockName : blockName;
-                        if (dimValues.TryGetValue(baseName, out val))
-                            attRef.TextString = val;
-                    }
+                    else if (dimValues.TryGetValue(baseBlockName, out val))
+                        attRef.TextString = val;
                 }
+            }
+
+            // Fallback: blok pojmenovaný CONNECTION_ID/CONNECTION_CODE – první atribut (po manglingu)
+            if (!idSet && MatchesTag(baseBlockName, ConnectionIdTags) && br.AttributeCollection.Count > 0)
+            {
+                var firstAtt = (AttributeReference)tr.GetObject(br.AttributeCollection[0], OpenMode.ForWrite);
+                firstAtt.TextString = connectionId ?? "";
+            }
+            else if (!codeSet && MatchesTag(baseBlockName, ConnectionCodeTags) && br.AttributeCollection.Count > 0)
+            {
+                var firstAtt = (AttributeReference)tr.GetObject(br.AttributeCollection[0], OpenMode.ForWrite);
+                firstAtt.TextString = connectionCode ?? "";
             }
         }
     }
@@ -98,6 +114,22 @@ public static class ConnectionAttributeService
             };
         }
 
+        string? GetPlateDim(ObjectId? id, string dimName)
+        {
+            if (!id.HasValue || !id.Value.IsValid) return null;
+            var ent = tr.GetObject(id.Value, OpenMode.ForRead) as Entity;
+            if (ent == null) return null;
+            var data = MoravioSmartXDataService.Read(ent);
+            if (data == null || data.MemberType != MoravioSmartXDataService.MemberTypePlate) return null;
+            return dimName switch
+            {
+                "L" => ((int)data.SpanLength).ToString(),
+                "B" => ((int)data.ExtensionRight).ToString(),
+                "T" => ((int)data.Depth).ToString(),
+                _ => null
+            };
+        }
+
         if (type == ConnectionType.C)
         {
             AddDim(result, "DIM_H1", GetJoistDim(id1, "H"));
@@ -112,25 +144,74 @@ public static class ConnectionAttributeService
         else if (type == ConnectionType.B)
         {
             var ent1 = id1.HasValue ? tr.GetObject(id1.Value, OpenMode.ForRead) as Entity : null;
-            var isFirstDeck = ent1 != null && MoravioSmartXDataService.Read(ent1)?.MemberType == MoravioSmartXDataService.MemberTypeDeck;
-            var joistId = isFirstDeck ? id2 : id1;
-            var deckId = isFirstDeck ? id1 : id2;
+            var ent2 = id2.HasValue ? tr.GetObject(id2.Value, OpenMode.ForRead) as Entity : null;
+            var mt1 = ent1 != null ? MoravioSmartXDataService.Read(ent1)?.MemberType : null;
+            var mt2 = ent2 != null ? MoravioSmartXDataService.Read(ent2)?.MemberType : null;
+            var joistId = mt1 == MoravioSmartXDataService.MemberTypeJoist ? id1 : id2;
+            var otherId = mt1 == MoravioSmartXDataService.MemberTypeJoist ? id2 : id1;
             AddDim(result, "DIM_H1", GetJoistDim(joistId, "H"));
-            AddDim(result, "DIM_L1", GetDeckDim(deckId, "L"));
-            AddDim(result, "DIM_B1_1", GetDeckDim(deckId, "B1"));
-            AddDim(result, "DIM_B2_1", GetDeckDim(deckId, "B2"));
-            AddDim(result, "DIM_T1", GetDeckDim(deckId, "T"));
+            if (mt2 == MoravioSmartXDataService.MemberTypePlate)
+            {
+                AddDim(result, "DIM_L1", GetPlateDim(otherId, "L"));
+                AddDim(result, "DIM_B1", GetPlateDim(otherId, "B"));
+                AddDim(result, "DIM_T1", GetPlateDim(otherId, "T"));
+            }
+            else
+            {
+                AddDim(result, "DIM_L1", GetDeckDim(otherId, "L"));
+                AddDim(result, "DIM_B1_1", GetDeckDim(otherId, "B1"));
+                AddDim(result, "DIM_B2_1", GetDeckDim(otherId, "B2"));
+                AddDim(result, "DIM_T1", GetDeckDim(otherId, "T"));
+            }
         }
         else
         {
-            AddDim(result, "DIM_L1", GetDeckDim(id1, "L"));
-            AddDim(result, "DIM_L2", GetDeckDim(id2, "L"));
-            AddDim(result, "DIM_B1_1", GetDeckDim(id1, "B1"));
-            AddDim(result, "DIM_B1_2", GetDeckDim(id2, "B1"));
-            AddDim(result, "DIM_B2_1", GetDeckDim(id1, "B2"));
-            AddDim(result, "DIM_B2_2", GetDeckDim(id2, "B2"));
-            AddDim(result, "DIM_T1", GetDeckDim(id1, "T"));
-            AddDim(result, "DIM_T2", GetDeckDim(id2, "T"));
+            var ent1 = id1.HasValue ? tr.GetObject(id1.Value, OpenMode.ForRead) as Entity : null;
+            var ent2 = id2.HasValue ? tr.GetObject(id2.Value, OpenMode.ForRead) as Entity : null;
+            var mt1 = ent1 != null ? MoravioSmartXDataService.Read(ent1)?.MemberType : null;
+            var mt2 = ent2 != null ? MoravioSmartXDataService.Read(ent2)?.MemberType : null;
+            bool p1 = mt1 == MoravioSmartXDataService.MemberTypePlate;
+            bool p2 = mt2 == MoravioSmartXDataService.MemberTypePlate;
+            if (p1 && p2)
+            {
+                AddDim(result, "DIM_L1", GetPlateDim(id1, "L"));
+                AddDim(result, "DIM_L2", GetPlateDim(id2, "L"));
+                AddDim(result, "DIM_B1", GetPlateDim(id1, "B"));
+                AddDim(result, "DIM_B2", GetPlateDim(id2, "B"));
+                AddDim(result, "DIM_T1", GetPlateDim(id1, "T"));
+                AddDim(result, "DIM_T2", GetPlateDim(id2, "T"));
+            }
+            else if (p1)
+            {
+                AddDim(result, "DIM_L1", GetPlateDim(id1, "L"));
+                AddDim(result, "DIM_L2", GetDeckDim(id2, "L"));
+                AddDim(result, "DIM_B1", GetPlateDim(id1, "B"));
+                AddDim(result, "DIM_B1_2", GetDeckDim(id2, "B1"));
+                AddDim(result, "DIM_B2_2", GetDeckDim(id2, "B2"));
+                AddDim(result, "DIM_T1", GetPlateDim(id1, "T"));
+                AddDim(result, "DIM_T2", GetDeckDim(id2, "T"));
+            }
+            else if (p2)
+            {
+                AddDim(result, "DIM_L1", GetDeckDim(id1, "L"));
+                AddDim(result, "DIM_L2", GetPlateDim(id2, "L"));
+                AddDim(result, "DIM_B1_1", GetDeckDim(id1, "B1"));
+                AddDim(result, "DIM_B2_1", GetDeckDim(id1, "B2"));
+                AddDim(result, "DIM_B2", GetPlateDim(id2, "B"));
+                AddDim(result, "DIM_T1", GetDeckDim(id1, "T"));
+                AddDim(result, "DIM_T2", GetPlateDim(id2, "T"));
+            }
+            else
+            {
+                AddDim(result, "DIM_L1", GetDeckDim(id1, "L"));
+                AddDim(result, "DIM_L2", GetDeckDim(id2, "L"));
+                AddDim(result, "DIM_B1_1", GetDeckDim(id1, "B1"));
+                AddDim(result, "DIM_B1_2", GetDeckDim(id2, "B1"));
+                AddDim(result, "DIM_B2_1", GetDeckDim(id1, "B2"));
+                AddDim(result, "DIM_B2_2", GetDeckDim(id2, "B2"));
+                AddDim(result, "DIM_T1", GetDeckDim(id1, "T"));
+                AddDim(result, "DIM_T2", GetDeckDim(id2, "T"));
+            }
         }
 
         return result;

@@ -5,9 +5,10 @@ using LineProperties.Models;
 
 namespace LineProperties.Services;
 
-public enum ConnectionType { A, B, C } // A=deck-deck, B=joist-deck, C=joist-joist
+public enum ConnectionType { A, B, C } // A=deck-deck/plate-plate/plate-deck, B=joist-deck/joist-plate, C=joist-joist
 
-public record ConnectionInfo(ObjectId Id1, ObjectId Id2, ConnectionType Type, Point3d ConnectionPoint);
+/// <summary>Connection info. When ConnectionPointEnd equals ConnectionPoint (or is default), contact is a point; otherwise a segment.</summary>
+public record ConnectionInfo(ObjectId Id1, ObjectId Id2, ConnectionType Type, Point3d ConnectionPoint, Point3d ConnectionPointEnd);
 
 public static class ConnectionDetectionService
 {
@@ -16,7 +17,9 @@ public static class ConnectionDetectionService
     public static List<ConnectionInfo> FindConnections(Database db, Transaction tr)
     {
         var joists = new List<(ObjectId Id, Line Line)>();
+        var beams = new List<(ObjectId Id, Line Line)>();
         var decks = new List<(ObjectId Id, Line Line)>();
+        var plates = new List<(ObjectId Id, Polyline Polyline)>();
 
         var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
         var btr = (BlockTableRecord)tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead);
@@ -24,17 +27,28 @@ public static class ConnectionDetectionService
         foreach (ObjectId id in btr)
         {
             if (!id.IsValid) continue;
-            var ent = tr.GetObject(id, OpenMode.ForRead) as Line;
-            if (ent == null) continue;
 
-            if (!MoravioSmartXDataService.HasMoravioSmartData(ent)) continue;
-            var data = MoravioSmartXDataService.Read(ent);
-            if (data == null) continue;
+            if (tr.GetObject(id, OpenMode.ForRead) is Line line)
+            {
+                if (!MoravioSmartXDataService.HasMoravioSmartData(line)) continue;
+                var data = MoravioSmartXDataService.Read(line);
+                if (data == null) continue;
+                if (data.MemberType == MoravioSmartXDataService.MemberTypeJoist)
+                    joists.Add((id, line));
+                else if (data.MemberType == MoravioSmartXDataService.MemberTypeBeam)
+                    beams.Add((id, line));
+                else if (data.MemberType == MoravioSmartXDataService.MemberTypeDeck)
+                    decks.Add((id, line));
+                continue;
+            }
 
-            if (data.MemberType == MoravioSmartXDataService.MemberTypeJoist)
-                joists.Add((id, ent));
-            else if (data.MemberType == MoravioSmartXDataService.MemberTypeDeck)
-                decks.Add((id, ent));
+            if (tr.GetObject(id, OpenMode.ForRead) is Polyline pline && pline.Closed)
+            {
+                if (!MoravioSmartXDataService.HasMoravioSmartData(pline)) continue;
+                var data = MoravioSmartXDataService.Read(pline);
+                if (data == null || data.MemberType != MoravioSmartXDataService.MemberTypePlate) continue;
+                plates.Add((id, pline));
+            }
         }
 
         var result = new List<ConnectionInfo>();
@@ -43,38 +57,133 @@ public static class ConnectionDetectionService
         for (int i = 0; i < joists.Count; i++)
         for (int j = i + 1; j < joists.Count; j++)
         {
-            if (TryLineLine(joists[i].Line, joists[j].Line, tolerance, out var pt))
-                result.Add(new ConnectionInfo(joists[i].Id, joists[j].Id, ConnectionType.C, pt));
+            if (TryLineLine(joists[i].Line, joists[j].Line, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(joists[i].Id, joists[j].Id, ConnectionType.C, pt1, pt2));
+        }
+
+        for (int i = 0; i < joists.Count; i++)
+        foreach (var (beamId, beam) in beams)
+        {
+            if (TryLineLine(joists[i].Line, beam, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(joists[i].Id, beamId, ConnectionType.B, pt1, pt2));
         }
 
         for (int i = 0; i < joists.Count; i++)
         for (int j = 0; j < decks.Count; j++)
         {
-            if (TryLineLine(joists[i].Line, decks[j].Line, tolerance, out var pt))
-                result.Add(new ConnectionInfo(joists[i].Id, decks[j].Id, ConnectionType.B, pt));
+            if (TryLineLine(joists[i].Line, decks[j].Line, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(joists[i].Id, decks[j].Id, ConnectionType.B, pt1, pt2));
+        }
+
+        foreach (var (beamId, beam) in beams)
+        for (int j = 0; j < decks.Count; j++)
+        {
+            if (TryLineLine(beam, decks[j].Line, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(beamId, decks[j].Id, ConnectionType.B, pt1, pt2));
+        }
+
+        for (int i = 0; i < joists.Count; i++)
+        foreach (var (plateId, plate) in plates)
+        {
+            if (TryLinePolyline(joists[i].Line, plate, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(joists[i].Id, plateId, ConnectionType.B, pt1, pt2));
+        }
+
+        foreach (var (beamId, beam) in beams)
+        foreach (var (plateId, plate) in plates)
+        {
+            if (TryLinePolyline(beam, plate, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(beamId, plateId, ConnectionType.B, pt1, pt2));
+        }
+
+        for (int i = 0; i < decks.Count; i++)
+        foreach (var (plateId, plate) in plates)
+        {
+            if (TryLinePolyline(decks[i].Line, plate, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(decks[i].Id, plateId, ConnectionType.A, pt1, pt2));
         }
 
         for (int i = 0; i < decks.Count; i++)
         for (int j = i + 1; j < decks.Count; j++)
         {
-            if (TryLineLine(decks[i].Line, decks[j].Line, tolerance, out var pt))
-                result.Add(new ConnectionInfo(decks[i].Id, decks[j].Id, ConnectionType.A, pt));
+            if (TryLineLine(decks[i].Line, decks[j].Line, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(decks[i].Id, decks[j].Id, ConnectionType.A, pt1, pt2));
+        }
+
+        for (int i = 0; i < plates.Count; i++)
+        for (int j = i + 1; j < plates.Count; j++)
+        {
+            if (TryPolylinePolyline(plates[i].Polyline, plates[j].Polyline, tolerance, out var pt1, out var pt2))
+                result.Add(new ConnectionInfo(plates[i].Id, plates[j].Id, ConnectionType.A, pt1, pt2));
         }
 
         return result;
     }
 
-    private static bool TryLineLine(Line a, Line b, double tolerance, out Point3d connectionPoint)
+    private static bool TryLinePolyline(Line line, Polyline pline, double tolerance, out Point3d pt1, out Point3d pt2)
     {
-        connectionPoint = default;
+        pt1 = pt2 = default;
+        var p1 = line.StartPoint;
+        var p2 = line.EndPoint;
+        int n = pline.NumberOfVertices;
+        for (int i = 0; i < n; i++)
+        {
+            var j = (i + 1) % n;
+            var p3 = pline.GetPoint3dAt(i);
+            var p4 = pline.GetPoint3dAt(j);
+            if (TryLineLine(p1, p2, p3, p4, tolerance, out pt1, out pt2))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool TryPolylinePolyline(Polyline a, Polyline b, double tolerance, out Point3d pt1, out Point3d pt2)
+    {
+        pt1 = pt2 = default;
+        int na = a.NumberOfVertices;
+        int nb = b.NumberOfVertices;
+        for (int i = 0; i < na; i++)
+        {
+            var ia = (i + 1) % na;
+            var p1 = a.GetPoint3dAt(i);
+            var p2 = a.GetPoint3dAt(ia);
+            for (int j = 0; j < nb; j++)
+            {
+                var jb = (j + 1) % nb;
+                var p3 = b.GetPoint3dAt(j);
+                var p4 = b.GetPoint3dAt(jb);
+                if (TryLineLine(p1, p2, p3, p4, tolerance, out pt1, out pt2))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool TryLineLine(Point3d p1, Point3d p2, Point3d p3, Point3d p4, double tolerance, out Point3d pt1, out Point3d pt2)
+    {
+        var la = new Line(p1, p2);
+        var lb = new Line(p3, p4);
+        return TryLineLine(la, lb, tolerance, out pt1, out pt2);
+    }
+
+    private static bool TryLineLine(Line a, Line b, double tolerance, out Point3d pt1, out Point3d pt2)
+    {
+        pt1 = pt2 = default;
         var p1 = a.StartPoint;
         var p2 = a.EndPoint;
         var p3 = b.StartPoint;
         var p4 = b.EndPoint;
 
+        if (SegmentSegmentOverlap(p1, p2, p3, p4, out var overlapStart, out var overlapEnd))
+        {
+            pt1 = overlapStart;
+            pt2 = overlapEnd;
+            return true;
+        }
+
         if (SegmentSegmentIntersect(p1, p2, p3, p4, out var pt))
         {
-            connectionPoint = pt;
+            pt1 = pt2 = pt;
             return true;
         }
 
@@ -82,10 +191,33 @@ public static class ConnectionDetectionService
         if (d <= tolerance)
         {
             double z = (p1.Z + p2.Z) / 2;
-            connectionPoint = new Point3d((pa.X + pb.X) / 2, (pa.Y + pb.Y) / 2, z);
+            pt1 = pt2 = new Point3d((pa.X + pb.X) / 2, (pa.Y + pb.Y) / 2, z);
             return true;
         }
         return false;
+    }
+
+    /// <summary>When segments are collinear and overlap, returns the overlap segment. Otherwise false.</summary>
+    private static bool SegmentSegmentOverlap(Point3d p1, Point3d p2, Point3d p3, Point3d p4, out Point3d start, out Point3d end)
+    {
+        start = end = default;
+        var d1 = p2 - p1;
+        var d2 = p4 - p3;
+        if (d1.Length < Tol || d2.Length < Tol) return false;
+        if (d1.CrossProduct(d2).Length > Tol) return false;
+
+        var lenSq = d1.Length * d1.Length;
+        double t3 = (p3 - p1).DotProduct(d1) / lenSq;
+        double t4 = (p4 - p1).DotProduct(d1) / lenSq;
+        double tMin = Math.Min(t3, t4);
+        double tMax = Math.Max(t3, t4);
+        double overlapStart = Math.Max(0, tMin);
+        double overlapEnd = Math.Min(1, tMax);
+        if (overlapStart >= overlapEnd - Tol) return false;
+
+        start = p1 + overlapStart * d1;
+        end = p1 + overlapEnd * d1;
+        return true;
     }
 
     private static bool SegmentSegmentIntersect(Point3d p1, Point3d p2, Point3d p3, Point3d p4, out Point3d result)

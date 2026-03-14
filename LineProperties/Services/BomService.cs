@@ -38,7 +38,10 @@ public static class BomService
             if (data == null) continue;
 
             string dims = ent is Line line ? line.Length.ToString("F2") : "0";
-            if (data.SpanLength > 0) dims = data.SpanLength.ToString("F2");
+            if (data.MemberType == MoravioSmartXDataService.MemberTypePlate && data.SpanLength > 0 && data.ExtensionRight > 0)
+                dims = $"{(int)data.SpanLength}×{(int)data.ExtensionRight}×{(int)data.Depth}";
+            else if (data.SpanLength > 0)
+                dims = data.SpanLength.ToString("F2");
 
             var key = (data.MemberType, data.Designation ?? "", dims, data.ExtensionLeft, data.ExtensionRight, data.Depth, data.Weight);
             if (!aggregator.TryGetValue(key, out var existing))

@@ -24,65 +24,70 @@ public class SmartDeckCommand
         var optionsDialog = new SmartDeckOptionsDialog();
         if (Application.ShowModalWindow(optionsDialog) != true) return;
 
-        var deckType = optionsDialog.SelectedDeckType;
-        var spacing = DeckLibrary.GetRibSpacing(deckType);
+        var plateType = optionsDialog.SelectedPlateType;
+        var mark = optionsDialog.Mark;
+        var rec = PlateLibrary.GetByDesignation(plateType);
+        var thicknessMm = rec?.ThicknessMm ?? 10;
 
-        var ppo = new PromptPointOptions("\nPick start point of deck span: ");
+        var ppo = new PromptPointOptions("\nPick first corner of plate: ");
         var ppr1 = ed.GetPoint(ppo);
         if (ppr1.Status != PromptStatus.OK) return;
 
-        ppo.Message = "\nPick end point of deck span: ";
+        ppo.Message = "\nPick opposite corner of plate: ";
         ppo.UseBasePoint = true;
         ppo.BasePoint = ppr1.Value;
         var ppr2 = ed.GetPoint(ppo);
         if (ppr2.Status != PromptStatus.OK) return;
 
-        var start = ppr1.Value;
-        var end = ppr2.Value;
-        var spanLength = start.DistanceTo(end);
-        var dir = end - start;
-        var length = dir.Length;
-        if (length < 1e-10) return;
+        var p1 = ppr1.Value;
+        var p2 = ppr2.Value;
+        var minX = Math.Min(p1.X, p2.X);
+        var maxX = Math.Max(p1.X, p2.X);
+        var minY = Math.Min(p1.Y, p2.Y);
+        var maxY = Math.Max(p1.Y, p2.Y);
+        var z = (p1.Z + p2.Z) / 2;
+        var length = maxX - minX;
+        var width = maxY - minY;
 
-        dir = dir.GetNormal();
-        var perp = new Vector3d(-dir.Y, dir.X, 0);
+        if (length < 1e-6 || width < 1e-6)
+        {
+            ed.WriteMessage("\nPlech musí mít nenulové rozměry.");
+            return;
+        }
 
         using var tr = db.TransactionManager.StartTransaction();
-        LayerHelper.EnsureDeckLayer(db, tr);
+        LayerHelper.EnsurePlatesLayer(db, tr);
+        if (string.IsNullOrEmpty(mark)) mark = MoravioSmartXDataService.GetNextPlateMark(db, tr);
 
         var bt = (BlockTable)tr.GetObject(db.BlockTableId, OpenMode.ForRead);
         var btr = (BlockTableRecord)tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite);
 
-        double offset = 0;
-        int ribIndex = 0;
-        var deckRec = DeckLibrary.GetByDeckType(deckType);
-        while (offset <= length + 1e-6)
+        var pline = new Polyline();
+        pline.AddVertexAt(0, new Point2d(minX, minY), 0, 0, 0);
+        pline.AddVertexAt(1, new Point2d(maxX, minY), 0, 0, 0);
+        pline.AddVertexAt(2, new Point2d(maxX, maxY), 0, 0, 0);
+        pline.AddVertexAt(3, new Point2d(minX, maxY), 0, 0, 0);
+        pline.Closed = true;
+        pline.Layer = LayerHelper.PlatesLayer;
+        pline.ColorIndex = 2;
+
+        btr.AppendEntity(pline);
+        tr.AddNewlyCreatedDBObject(pline, true);
+
+        var data = new MoravioSmartData
         {
-            var p1 = start + perp * offset;
-            var p2 = end + perp * offset;
-            var line = new Line(p1, p2);
-            line.Layer = LayerHelper.DeckLayer;
-            line.ColorIndex = 3;
-
-            btr.AppendEntity(line);
-            tr.AddNewlyCreatedDBObject(line, true);
-
-            var data = new MoravioSmartData
-            {
-                MemberType = MoravioSmartXDataService.MemberTypeDeck,
-                Mark = $"D{ribIndex + 1}",
-                Designation = deckType,
-                SpanLength = spanLength,
-                Depth = deckRec?.ProfileDepthInches ?? 1.5
-            };
-            MoravioSmartXDataService.EnsureRegApp(db, tr);
-            MoravioSmartXDataService.Write(line, data, db, tr);
-
-            offset += spacing;
-            ribIndex++;
-        }
+            MemberType = MoravioSmartXDataService.MemberTypePlate,
+            Mark = mark,
+            Designation = plateType,
+            SpanLength = Math.Max(length, width),
+            ExtensionRight = Math.Min(length, width),
+            Depth = thicknessMm
+        };
+        MoravioSmartXDataService.EnsureRegApp(db, tr);
+        MoravioSmartXDataService.Write(pline, data, db, tr);
 
         tr.Commit();
         ed.Regen();
+        ed.WriteMessage($"\nPlech {plateType} (Mark: {mark}) nakreslen.");
     }
 }

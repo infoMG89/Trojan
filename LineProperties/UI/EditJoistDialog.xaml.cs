@@ -12,14 +12,23 @@ public partial class EditJoistDialog : Window
 {
     public JoistPropertyModel Model { get; } = new();
 
-    private readonly List<string> _allDesignations;
+    /// <summary>SJI = joist, W/C = AISC beam. Used by SmartJoistCommand for layer and MemberType.</summary>
+    public string SelectedLibrary { get; private set; } = "SJI";
+
+    private static readonly (string Key, string Label)[] LibraryOptions =
+    {
+        ("SJI", "SJI Joists"),
+        ("W", "AISC W-Shapes"),
+        ("C", "AISC C-Channels")
+    };
 
     public EditJoistDialog()
     {
         InitializeComponent();
-        _allDesignations = SjiJoistLibrary.GetDesignations().ToList();
         DataContext = Model;
-        CmbDesignation.ItemsSource = _allDesignations;
+        CmbLibrary.ItemsSource = LibraryOptions.Select(x => x.Label).ToList();
+        CmbLibrary.SelectedIndex = 0;
+        LoadDesignationsForLibrary("SJI");
         CmbDesignation.SelectedItem = Model.Designation;
         UpdateDepthWeightFromDesignation(Model.Designation);
     }
@@ -41,9 +50,46 @@ public partial class EditJoistDialog : Window
         Model.SequenceZone = model.SequenceZone;
         Model.Depth = model.Depth;
         Model.Weight = model.Weight;
-        CmbDesignation.Text = model.Designation;
-        CmbDesignation.SelectedItem = _allDesignations.FirstOrDefault(d =>
-            string.Equals(d, model.Designation, StringComparison.OrdinalIgnoreCase));
+        var aisc = AiscShapeLibrary.GetByDesignation(model.Designation);
+        if (aisc != null)
+        {
+            SelectedLibrary = aisc.ShapeType;
+            CmbLibrary.SelectedIndex = Array.FindIndex(LibraryOptions, x => x.Key == SelectedLibrary);
+            LoadDesignationsForLibrary(SelectedLibrary);
+        }
+        SelectDesignationInCombo(model.Designation);
+    }
+
+    private void CmbLibrary_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CmbLibrary.SelectedIndex >= 0 && CmbLibrary.SelectedIndex < LibraryOptions.Length)
+        {
+            SelectedLibrary = LibraryOptions[CmbLibrary.SelectedIndex].Key;
+            LoadDesignationsForLibrary(SelectedLibrary);
+        }
+    }
+
+    private void LoadDesignationsForLibrary(string libraryKey)
+    {
+        var designations = libraryKey == "SJI"
+            ? SjiJoistLibrary.GetDesignations().ToList()
+            : AiscShapeLibrary.GetDesignations(libraryKey).ToList();
+        CmbDesignation.ItemsSource = designations;
+        CmbDesignation.SelectedItem = libraryKey == "SJI"
+            ? SjiJoistLibrary.DefaultDesignation
+            : AiscShapeLibrary.GetDefaultDesignation(libraryKey);
+        Model.Designation = CmbDesignation.SelectedItem as string ?? "";
+    }
+
+    private void SelectDesignationInCombo(string designation)
+    {
+        if (CmbDesignation.ItemsSource is IEnumerable<string> items)
+        {
+            var match = items.FirstOrDefault(d =>
+                string.Equals(d, designation, StringComparison.OrdinalIgnoreCase));
+            CmbDesignation.SelectedItem = match;
+        }
+        CmbDesignation.Text = designation;
     }
 
     private void CmbDesignation_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,11 +100,18 @@ public partial class EditJoistDialog : Window
 
     private void UpdateDepthWeightFromDesignation(string designation)
     {
-        var rec = SjiJoistLibrary.GetByDesignation(designation);
-        if (rec != null)
+        var sji = SjiJoistLibrary.GetByDesignation(designation);
+        if (sji != null)
         {
-            Model.Depth = rec.DepthInches;
-            Model.Weight = rec.WeightPlf;
+            Model.Depth = sji.DepthInches;
+            Model.Weight = sji.WeightPlf;
+            return;
+        }
+        var aisc = AiscShapeLibrary.GetByDesignation(designation);
+        if (aisc != null)
+        {
+            Model.Depth = aisc.DepthInches;
+            Model.Weight = aisc.WeightPlf;
         }
     }
 

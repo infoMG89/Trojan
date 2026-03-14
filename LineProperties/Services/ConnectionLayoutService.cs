@@ -74,7 +74,7 @@ public static class ConnectionLayoutService
 
         if (idsToClone.Count == 0) return null;
 
-        var layoutName = $"Connection_{connectionId.Replace("-", "_")}";
+        var layoutName = connectionId; // Sheet name = Connection_ID (CONN-1, CONN-2, …)
         var targetLm = (LayoutManager)LayoutManager.Current;
         try { targetLm.CreateLayout(layoutName); }
         catch { /* layout already exists */ }

@@ -5,21 +5,24 @@ namespace LineProperties.UI;
 
 public partial class SmartDeckOptionsDialog : Window
 {
-    public string SelectedDeckType { get; private set; } = DeckLibrary.DefaultDeckType;
+    public string SelectedPlateType { get; private set; } = PlateLibrary.DefaultPlateType;
+    public string Mark { get; private set; } = "P1";
 
     public SmartDeckOptionsDialog()
     {
         InitializeComponent();
-        CmbDeckType.ItemsSource = DeckLibrary.GetDeckTypes();
-        CmbDeckType.SelectedItem = DeckLibrary.DefaultDeckType;
-        CmbGauge.ItemsSource = new[] { 18, 20, 22 };
-        CmbGauge.SelectedItem = 18;
+        CmbPlateType.ItemsSource = PlateLibrary.GetPlateTypes();
+        CmbPlateType.SelectedItem = PlateLibrary.DefaultPlateType;
+        TxtMark.Text = "P1";
     }
 
     private void BtnOk_Click(object sender, RoutedEventArgs e)
     {
-        if (CmbDeckType.SelectedItem is string dt)
-            SelectedDeckType = dt;
+        if (CmbPlateType.SelectedItem is string pt)
+            SelectedPlateType = pt;
+        else if (!string.IsNullOrWhiteSpace(CmbPlateType.Text))
+            SelectedPlateType = CmbPlateType.Text.Trim();
+        Mark = TxtMark.Text?.Trim() ?? "P1";
         DialogResult = true;
         Close();
     }

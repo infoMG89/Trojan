@@ -1,12 +1,18 @@
-# Knihovna metal deck
+# Knihovna plechů (SMARTDECK)
 
-Přehled typů decku pro SMARTDECK. B-Deck, C-Deck, N-Deck; gauges 18, 20, 22; profily 1"–3".
+Přehled typů ocelových plechů pro příkaz **SMARTDECK**. Obdélníkové plechy reprezentované jako uzavřená Polyline.
 
-| Typ | Gauge | Profile (in) | Rib spacing (in) |
-|-----|-------|--------------|------------------|
-| B-Deck 1.5" 18ga | 18 | 1.5 | 6 |
-| B-Deck 2" 20ga | 20 | 2.0 | 6 |
-| C-Deck 2" 18ga | 18 | 2.0 | 12 |
-| N-Deck 1.5" 22ga | 22 | 1.5 | 6 |
+| Designace | Tloušťka (mm) |
+|-----------|---------------|
+| PL 6  | 6  |
+| PL 8  | 8  |
+| PL 10 | 10 |
+| PL 12 | 12 |
+| PL 15 | 15 |
+| PL 20 | 20 |
+| PL 25 | 25 |
+| PL 30 | 30 |
 
-Kompletní seznam v `DeckLibrary.cs`.
+Kompletní seznam v `PlateLibrary.cs`.
+
+Plechy se používají v **CONNECTIONS** a **CONNECTION_SHEET** – detekce spojů joist–plech, deck–plech, plech–plech. Atributy šablon: DIM_L (délka), DIM_B (šířka), DIM_T (tloušťka mm).

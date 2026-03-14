@@ -54,6 +54,6 @@ public static class DeckLibrary
             string.Equals(d.DeckType, deckType, StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>Rib spacing in drawing units (inches) - used for SMARTDECK line spacing.</summary>
+    /// <summary>Rib spacing in drawing units (inches) - used for SMARTPATTERN line spacing.</summary>
     public static double GetRibSpacing(string? deckType) => GetByDeckType(deckType)?.RibSpacingInches ?? 6.0;
 }

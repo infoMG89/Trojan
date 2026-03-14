@@ -1,4 +1,4 @@
-# Konvence šablon pro CONNECTION_LIST
+# Konvence šablon pro CONNECTION_SHEET
 
 ## Umístění šablon
 
@@ -10,7 +10,7 @@
 
 ## Struktura šablony
 
-V každé šabloně musí být alespoň jeden layout (paper space) kromě Model. Příkaz CONNECTION_LIST zkopíruje obsah prvního takového layoutu.
+V každé šabloně musí být alespoň jeden layout (paper space) kromě Model. Příkaz CONNECTION_SHEET zkopíruje obsah prvního takového layoutu.
 
 **Důležité:** Veškerá geometrie detailu spoje (průřezy nosníků, plechy, texty, bloky) musí být v **paper space layoutu**, nikoli v model space. Viewport zobrazující model space by po zkopírování ukazoval na model space cílového výkresu, ne šablony – proto by geometrie nebyla vidět.
 
@@ -59,4 +59,4 @@ Index 1 = první nosník ve spoji, 2 = druhý (u typu C).
 | DIM_B2_1, DIM_B2_2 | šířka dolní hrany b2 | mm |
 | DIM_T1, DIM_T2 | tloušťka t | mm |
 
-**Postup:** Vytvořte bloky (např. DIM_H1, DIM_B1, …) s jedním atributem tag VALUE. Při CONNECTION_LIST plugin vyplní hodnotu podle LINEPROP entit připojených ke spoji.
+**Postup:** Vytvořte bloky (např. DIM_H1, DIM_B1, …) s jedním atributem tag VALUE. Při CONNECTION_SHEET plugin vyplní hodnotu podle LINEPROP entit připojených ke spoji.

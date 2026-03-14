@@ -16,6 +16,7 @@ public static class MoravioSmartXDataService
     public const string MemberTypeJoist = "JOIST";
     public const string MemberTypeBeam = "BEAM";
     public const string MemberTypeDeck = "DECK";
+    public const string MemberTypePlate = "PLATE";
 
     private const int DxfString = 1000;
     private const int DxfReal = 1040;
@@ -138,6 +139,8 @@ public static class MoravioSmartXDataService
     private const string DictName = "MORAVIO_SMART";
     private const string NextJoistMarkRecord = "NextJoistMark";
     private const string NextTieJoistMarkRecord = "NextTieJoistMark";
+    private const string NextBeamMarkRecord = "NextBeamMark";
+    private const string NextPlateMarkRecord = "NextPlateMark";
 
     /// <summary>Returns the next joist mark (J1, J2, ...) and increments the counter.</summary>
     public static string GetNextJoistMark(Database db, Transaction tr)
@@ -151,6 +154,20 @@ public static class MoravioSmartXDataService
     {
         int next = GetAndIncrementCounter(db, tr, NextTieJoistMarkRecord);
         return $"TJ{next}";
+    }
+
+    /// <summary>Returns the next beam mark (B1, B2, ...) and increments the counter.</summary>
+    public static string GetNextBeamMark(Database db, Transaction tr)
+    {
+        int next = GetAndIncrementCounter(db, tr, NextBeamMarkRecord);
+        return $"B{next}";
+    }
+
+    /// <summary>Returns the next plate mark (P1, P2, ...) and increments the counter.</summary>
+    public static string GetNextPlateMark(Database db, Transaction tr)
+    {
+        int next = GetAndIncrementCounter(db, tr, NextPlateMarkRecord);
+        return $"P{next}";
     }
 
     private static int GetAndIncrementCounter(Database db, Transaction tr, string recordName)

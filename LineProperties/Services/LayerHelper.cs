@@ -7,6 +7,8 @@ public static class LayerHelper
 {
     public const string JoistsLayer = "JOISTS";
     public const string DeckLayer = "DECK";
+    public const string BeamsLayer = "BEAMS";
+    public const string PlatesLayer = "PLATES";
     public const string WallsLayer = "WALLS";
     public const string ColumnsLayer = "COLUMNS";
 
@@ -27,4 +29,6 @@ public static class LayerHelper
 
     public static void EnsureJoistsLayer(Database db, Transaction tr) => EnsureLayer(db, tr, JoistsLayer, 1);
     public static void EnsureDeckLayer(Database db, Transaction tr) => EnsureLayer(db, tr, DeckLayer, 3);
+    public static void EnsureBeamsLayer(Database db, Transaction tr) => EnsureLayer(db, tr, BeamsLayer, 4); // cyan
+    public static void EnsurePlatesLayer(Database db, Transaction tr) => EnsureLayer(db, tr, PlatesLayer, 2); // yellow
 }

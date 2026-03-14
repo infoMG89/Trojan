@@ -55,6 +55,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="6"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="6"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="12"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -68,47 +72,50 @@
 
         <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="Edit Joist Smart Data" FontSize="18" FontWeight="SemiBold"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Mark:"/>
-        <TextBox Grid.Row="2" Grid.Column="1" x:Name="TxtMark" Text="{Binding Mark, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="2" Grid.Column="3" Text="Type/Desig:"/>
-        <ComboBox Grid.Row="2" Grid.Column="4" x:Name="CmbDesignation" IsEditable="True"
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Library:"/>
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbLibrary" IsEditable="False" SelectionChanged="CmbLibrary_SelectionChanged"/>
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Mark:"/>
+        <TextBox Grid.Row="2" Grid.Column="4" x:Name="TxtMark" Text="{Binding Mark, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Designation:"/>
+        <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" x:Name="CmbDesignation" IsEditable="True"
                   Text="{Binding Designation, UpdateSourceTrigger=PropertyChanged}"
                   SelectionChanged="CmbDesignation_SelectionChanged"/>
 
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="EXTL:"/>
-        <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtExtL" Text="{Binding ExtensionLeft, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="4" Grid.Column="3" Text="EXTR:"/>
-        <TextBox Grid.Row="4" Grid.Column="4" x:Name="TxtExtR" Text="{Binding ExtensionRight, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="EXTL:"/>
+        <TextBox Grid.Row="6" Grid.Column="1" x:Name="TxtExtL" Text="{Binding ExtensionLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="6" Grid.Column="3" Text="EXTR:"/>
+        <TextBox Grid.Row="6" Grid.Column="4" x:Name="TxtExtR" Text="{Binding ExtensionRight, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="6" Grid.Column="0" Text="CL:"/>
-        <TextBox Grid.Row="6" Grid.Column="1" x:Name="TxtCL" Text="{Binding CantileverLeft, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="6" Grid.Column="3" Text="CR:"/>
-        <TextBox Grid.Row="6" Grid.Column="4" x:Name="TxtCR" Text="{Binding CantileverRight, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="CL:"/>
+        <TextBox Grid.Row="8" Grid.Column="1" x:Name="TxtCL" Text="{Binding CantileverLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="8" Grid.Column="3" Text="CR:"/>
+        <TextBox Grid.Row="8" Grid.Column="4" x:Name="TxtCR" Text="{Binding CantileverRight, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="8" Grid.Column="0" Text="SHL:"/>
-        <TextBox Grid.Row="8" Grid.Column="1" x:Name="TxtSHL" Text="{Binding ShoeLeft, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="8" Grid.Column="3" Text="SHR:"/>
-        <TextBox Grid.Row="8" Grid.Column="4" x:Name="TxtSHR" Text="{Binding ShoeRight, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="10" Grid.Column="0" Text="SHL:"/>
+        <TextBox Grid.Row="10" Grid.Column="1" x:Name="TxtSHL" Text="{Binding ShoeLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="10" Grid.Column="3" Text="SHR:"/>
+        <TextBox Grid.Row="10" Grid.Column="4" x:Name="TxtSHR" Text="{Binding ShoeRight, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="10" Grid.Column="0" Text="BCXL:"/>
-        <TextBox Grid.Row="10" Grid.Column="1" x:Name="TxtBCXL" Text="{Binding BridgingLeft, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBlock Grid.Row="10" Grid.Column="3" Text="BCXR:"/>
-        <TextBox Grid.Row="10" Grid.Column="4" x:Name="TxtBCXR" Text="{Binding BridgingRight, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="12" Grid.Column="0" Text="BCXL:"/>
+        <TextBox Grid.Row="12" Grid.Column="1" x:Name="TxtBCXL" Text="{Binding BridgingLeft, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="12" Grid.Column="3" Text="BCXR:"/>
+        <TextBox Grid.Row="12" Grid.Column="4" x:Name="TxtBCXR" Text="{Binding BridgingRight, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <CheckBox Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ChkTieJoist"
+        <CheckBox Grid.Row="14" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ChkTieJoist"
                   Content="Tie Joist" IsChecked="{Binding IsTieJoist}" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="12" Grid.Column="3" Text="Active Loads:"/>
-        <TextBox Grid.Row="12" Grid.Column="4" x:Name="TxtActiveLoads" Text="{Binding ActiveLoads, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="14" Grid.Column="3" Text="Active Loads:"/>
+        <TextBox Grid.Row="14" Grid.Column="4" x:Name="TxtActiveLoads" Text="{Binding ActiveLoads, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="14" Grid.Column="0" Text="Sequence/Zone:"/>
-        <TextBox Grid.Row="14" Grid.Column="1" Grid.ColumnSpan="4" x:Name="TxtSequenceZone" Text="{Binding SequenceZone, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Grid.Row="16" Grid.Column="0" Text="Sequence/Zone:"/>
+        <TextBox Grid.Row="16" Grid.Column="1" Grid.ColumnSpan="4" x:Name="TxtSequenceZone" Text="{Binding SequenceZone, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Grid.Row="16" Grid.Column="0" Text="Depth:"/>
-        <TextBlock Grid.Row="16" Grid.Column="1" x:Name="TxtDepth" Text="{Binding Depth, StringFormat=F2}" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="16" Grid.Column="3" Text="Weight:"/>
-        <TextBlock Grid.Row="16" Grid.Column="4" x:Name="TxtWeight" Text="{Binding Weight, StringFormat=F2}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="18" Grid.Column="0" Text="Depth:"/>
+        <TextBlock Grid.Row="18" Grid.Column="1" x:Name="TxtDepth" Text="{Binding Depth, StringFormat=F2}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="18" Grid.Column="3" Text="Weight:"/>
+        <TextBlock Grid.Row="18" Grid.Column="4" x:Name="TxtWeight" Text="{Binding Weight, StringFormat=F2}" VerticalAlignment="Center"/>
 
-        <StackPanel Grid.Row="18" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
+        <StackPanel Grid.Row="20" Grid.ColumnSpan="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
             <Button Content="OK" Width="90" Margin="0,0,10,0" Click="BtnOk_Click" IsDefault="True"/>
             <Button Content="Cancel" Width="90" Background="#FF555555" Click="BtnCancel_Click" IsCancel="True"/>
         </StackPanel>

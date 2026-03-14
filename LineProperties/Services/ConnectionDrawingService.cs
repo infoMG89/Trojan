@@ -24,11 +24,26 @@ public static class ConnectionDrawingService
             var ent2 = tr.GetObject(conn.Id2, OpenMode.ForRead) as Entity;
             if (ent1 == null || ent2 == null) continue;
 
-            var circle = new Circle(conn.ConnectionPoint, Vector3d.ZAxis, MarkerRadius);
-            circle.ColorIndex = 5;
-            btr.AppendEntity(circle);
-            tr.AddNewlyCreatedDBObject(circle, true);
-            ConnectionMarkerService.SetMarkerData(circle, ent1.Handle.ToString(), ent2.Handle.ToString(), conn.Type, connectionId, db, tr);
+            Entity marker;
+            var isSegment = conn.ConnectionPoint.DistanceTo(conn.ConnectionPointEnd) > 1e-6;
+            if (isSegment)
+            {
+                var line = new Line(conn.ConnectionPoint, conn.ConnectionPointEnd);
+                line.ColorIndex = 5;
+                line.LineWeight = LineWeight.LineWeight050;
+                btr.AppendEntity(line);
+                tr.AddNewlyCreatedDBObject(line, true);
+                marker = line;
+            }
+            else
+            {
+                var circle = new Circle(conn.ConnectionPoint, Vector3d.ZAxis, MarkerRadius);
+                circle.ColorIndex = 5;
+                btr.AppendEntity(circle);
+                tr.AddNewlyCreatedDBObject(circle, true);
+                marker = circle;
+            }
+            ConnectionMarkerService.SetMarkerData(marker, ent1.Handle.ToString(), ent2.Handle.ToString(), conn.Type, connectionId, db, tr);
         }
     }
 

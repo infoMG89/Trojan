@@ -1,6 +1,6 @@
-# Podrobný návod: Příprava šablon pro CONNECTION_LIST
+# Podrobný návod: Příprava šablon pro CONNECTION_SHEET
 
-Kompletní návod, jak vytvořit a připravit šablony spojů pro příkaz CONNECTION_LIST.
+Kompletní návod, jak vytvořit a připravit šablony spojů pro příkaz CONNECTION_SHEET.
 
 ---
 
@@ -82,7 +82,7 @@ C:\Users\marti\OneDrive\Documents_2\Cursor\AutoCAD\Templates\
 3. Příkaz **INSERT**:
    - Vložte blok do layoutu na místo odkazové značky
 
-**Výsledek:** Plugin při CONNECTION_LIST nastaví hodnotu na CONN-1, CONN-2, … podle spoje.
+**Výsledek:** Plugin při CONNECTION_SHEET nastaví hodnotu na CONN-1, CONN-2, … podle spoje.
 
 ### Krok 5: Blok kódu druhu spoje (CONNECTION_CODE)
 
@@ -101,7 +101,7 @@ C:\Users\marti\OneDrive\Documents_2\Cursor\AutoCAD\Templates\
 
 **Důležité:** Tag atributu musí být CONNECTION_CODE, ne výchozí hodnota A0. V Properties u bloku zkontrolujte, že atribut má „Tag: CONNECTION_CODE“.
 
-**Výsledek:** Plugin nastaví hodnotu na kód, který uživatel vybral při kliknutí na marker v příkazu CONNECTIONS.
+**Výsledek:** Plugin při CONNECTION_SHEET nastaví hodnotu na kód, který uživatel vybral při kliknutí na marker v příkazu CONNECTIONS.
 
 ### Krok 6: Parametrické kóty (volitelné)
 
@@ -137,7 +137,7 @@ Pro automatické vyplnění rozměrů z LINEPROP:
 
 ## 4. Kontrola
 
-V AutoCADu s načteným pluginem spusťte příkaz **TEMPLATE_CHECK**.
+V AutoCADu s načteným pluginem spusťte příkaz **TEMPLATE_CHECK** před použitím **CONNECTION_SHEET**.
 
 **Očekávaný výstup:**
 ```
@@ -167,7 +167,7 @@ V AutoCADu s načteným pluginem spusťte příkaz **TEMPLATE_CHECK**.
 
 | Chyba | Řešení |
 |-------|--------|
-| Prázdný sheet po CONNECTION_LIST | Geometrie je v model space – přesuňte do paper space |
+| Prázdný sheet po CONNECTION_SHEET | Geometrie je v model space – přesuňte do paper space |
 | Kód zůstává A0 místo C7 | Atribut má špatný tag – musí být CONNECTION_CODE, ne výchozí hodnota |
 | Text „CONNECTION_CODE“ se nemění | Je to obyčejný text (MText/Text), ne atribut bloku – vytvořte blok s atributem |
 | Layout se nezkopíruje | Zkontrolujte cestu k šablonám v ConnectionLayoutService.cs |

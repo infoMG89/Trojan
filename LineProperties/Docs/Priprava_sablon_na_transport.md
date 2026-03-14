@@ -32,7 +32,7 @@ Zkopírujte celou složku `Templates` včetně všech tří DWG souborů.
 
 **Kritické:** Veškerá geometrie detailu spoje musí být přímo v **paper space layoutu**, ne v model space.
 
-| Kde je geometrie | Výsledek po CONNECTION_LIST |
+| Kde je geometrie | Výsledek po CONNECTION_SHEET |
 |------------------|----------------------------|
 | V paper space layoutu | ✅ Zkopíruje se do sheetu |
 | V model space + viewport | ❌ Prázdný sheet – viewport ukazuje na model cílového výkresu |
@@ -54,7 +54,7 @@ Zkopírujte celou složku `Templates` včetně všech tří DWG souborů.
 2. **BLOCK** – vytvořte blok obsahující tento atribut (název libovolný, např. `ODKAZ_ZNAMKA`).
 3. **INSERT** – vložte blok do layoutu na místo, kde má být odkazová značka (např. CONN-1, CONN-2, …).
 
-Plugin při CONNECTION_LIST nahradí hodnotu atributu skutečným ID spoje.
+Plugin při CONNECTION_SHEET nahradí hodnotu atributu skutečným ID spoje.
 
 ### 2.4 Blok kódu druhu spoje (CONNECTION_CODE)
 

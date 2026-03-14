@@ -11,8 +11,7 @@ namespace LineProperties.Commands;
 
 public class ElementListCommand
 {
-    [CommandMethod("LINEPROPLIST", CommandFlags.Modal)]
-    [CommandMethod("JOISTLIST", CommandFlags.Modal)]
+    [CommandMethod("SMARTJOIST_LIST", CommandFlags.Modal)]
     public void ShowElementList()
     {
         var doc = Application.DocumentManager.MdiActiveDocument;

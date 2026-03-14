@@ -1,0 +1,38 @@
+<Window x:Class="LineProperties.UI.AiscShapeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AISC 14th Ed Steel Shapes"
+        Width="380" Height="220"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Shape Type:" VerticalAlignment="Center"/>
+        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="CmbShapeType" IsEditable="False" SelectionChanged="CmbShapeType_SelectionChanged"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Designation:" VerticalAlignment="Center"/>
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbDesignation" IsEditable="True"/>
+
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Mark:" VerticalAlignment="Center"/>
+        <TextBox Grid.Row="4" Grid.Column="1" x:Name="TxtMark" Text="B1"/>
+
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK" Width="80" Margin="0,0,10,0" Click="BtnOk_Click" IsDefault="True"/>
+            <Button Content="Cancel" Width="80" Click="BtnCancel_Click" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

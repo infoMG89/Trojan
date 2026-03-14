@@ -1,7 +1,7 @@
 using Autodesk.AutoCAD.ApplicationServices;
-using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.Runtime;
 using LineProperties.Services;
+using LineProperties.UI;
 using Application = Autodesk.AutoCAD.ApplicationServices.Application;
 
 [assembly: CommandClass(typeof(LineProperties.Commands.ConnectionListCommand))]
@@ -17,25 +17,14 @@ public class ConnectionListCommand
         var db = doc.Database;
         var ed = doc.Editor;
 
-        var markers = ConnectionMarkerListService.CollectMarkers(db);
-        if (markers.Count == 0)
+        var items = ConnectionMarkerListService.CollectMarkersWithEntityInfo(db);
+        if (items.Count == 0)
         {
             ed.WriteMessage("\nŽádné connection markery nenalezeny. Spusťte nejdříve CONNECTIONS.");
             return;
         }
 
-        using var tr = db.TransactionManager.StartTransaction();
-        int created = 0;
-        foreach (var m in markers)
-        {
-            var id1 = ConnectionMarkerService.GetObjectIdByHandleString(db, m.Handle1);
-            var id2 = ConnectionMarkerService.GetObjectIdByHandleString(db, m.Handle2);
-            var layoutId = ConnectionLayoutService.CreateLayoutFromTemplate(db, tr, m.Type, m.ConnectionId, m.ChosenCode, id1, id2);
-            if (layoutId.HasValue) created++;
-        }
-        tr.Commit();
-
-        ed.WriteMessage($"\nVytvořeno {created} sheetů ze šablon.");
-        ed.Regen();
+        var dialog = new ConnectionListDialog(items);
+        Application.ShowModalWindow(dialog);
     }
 }
