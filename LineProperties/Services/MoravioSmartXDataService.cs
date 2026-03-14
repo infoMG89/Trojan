@@ -141,6 +141,7 @@ public static class MoravioSmartXDataService
     private const string NextTieJoistMarkRecord = "NextTieJoistMark";
     private const string NextBeamMarkRecord = "NextBeamMark";
     private const string NextPlateMarkRecord = "NextPlateMark";
+    private const string NextDeckMarkRecord = "NextDeckMark";
 
     /// <summary>Returns the next joist mark (J1, J2, ...) and increments the counter.</summary>
     public static string GetNextJoistMark(Database db, Transaction tr)
@@ -168,6 +169,13 @@ public static class MoravioSmartXDataService
     {
         int next = GetAndIncrementCounter(db, tr, NextPlateMarkRecord);
         return $"P{next}";
+    }
+
+    /// <summary>Returns the next deck mark (D1, D2, ...) and increments the counter.</summary>
+    public static string GetNextDeckMark(Database db, Transaction tr)
+    {
+        int next = GetAndIncrementCounter(db, tr, NextDeckMarkRecord);
+        return $"D{next}";
     }
 
     private static int GetAndIncrementCounter(Database db, Transaction tr, string recordName)

@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Edit Joist Smart Data"
         Width="420" Height="380"
+        MinWidth="380" MinHeight="340"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         Background="#FFF5F5F5"
         FontFamily="Segoe UI"
         FontSize="13">

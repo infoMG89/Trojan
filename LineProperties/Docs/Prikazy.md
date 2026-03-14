@@ -4,6 +4,8 @@
 |--------|-------|
 | **SMARTJOIST** | Nakreslí joist nebo AISC nosník mezi dvěma body. Knihovna: SJI Joists, AISC W-Shapes, AISC C-Channels. Mark J1/B1/TJ1 podle typu. |
 | **EDITJOIST** | Vyberte joist čáru(y) – otevře dialog s XData, umožní editaci. |
+| **SMARTMATCH** | Zkopírujte vlastnosti z jedné čáry/plechu na jiné – 2 kroky, bez dialogu. |
+| **SMARTASSIGN** | Přiřaďte smart vlastnosti vybraným čárám/plechům – výběr + kompaktní dialog. |
 | **SMARTDECK** | Nakreslí obdélník (plech) mezi dvěma rohy. Výběr typu plechu (PL 6–30 mm), Mark P1, P2… |
 | **SMARTPATTERN** | Vyberte typ decku (B/C/N, gauge), pak dva body – nakreslí pole deck čar s XData. |
 | **AISC_SHAPE** | AISC 14th Ed steel shapes – vyberte W nebo C, designaci (W14x22, C12x25…), pak dva body – nakreslí nosník s MORAVIO_SMART. |

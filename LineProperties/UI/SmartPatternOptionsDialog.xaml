@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Smart Pattern - Select Type"
         Width="360" Height="180"
+        MinWidth="300" MinHeight="160"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="CanResizeWithGrip">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
