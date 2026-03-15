@@ -12,6 +12,10 @@ public partial class AiscShapeDialog : Window
     public AiscShapeDialog()
     {
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (Helpers.LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (Helpers.LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
         CmbShapeType.ItemsSource = AiscShapeLibrary.GetShapeTypes();
         CmbShapeType.SelectedItem = "W";
         LoadDesignations("W");

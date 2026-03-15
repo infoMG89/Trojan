@@ -18,6 +18,10 @@ public partial class SmartAssignDialog : Window
     {
         _isPolyline = isPolyline;
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (Helpers.LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (Helpers.LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
 
         if (isPolyline)
         {

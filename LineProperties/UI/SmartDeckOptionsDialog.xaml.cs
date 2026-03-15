@@ -11,6 +11,10 @@ public partial class SmartDeckOptionsDialog : Window
     public SmartDeckOptionsDialog()
     {
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (Helpers.LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (Helpers.LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
         CmbPlateType.ItemsSource = PlateLibrary.GetPlateTypes();
         CmbPlateType.SelectedItem = PlateLibrary.DefaultPlateType;
         TxtMark.Text = "P1";

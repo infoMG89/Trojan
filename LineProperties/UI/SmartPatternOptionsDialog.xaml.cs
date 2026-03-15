@@ -10,6 +10,10 @@ public partial class SmartPatternOptionsDialog : Window
     public SmartPatternOptionsDialog()
     {
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (Helpers.LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (Helpers.LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
         CmbDeckType.ItemsSource = DeckLibrary.GetDeckTypes();
         CmbDeckType.SelectedItem = DeckLibrary.DefaultDeckType;
         CmbGauge.ItemsSource = new[] { 18, 20, 22 };

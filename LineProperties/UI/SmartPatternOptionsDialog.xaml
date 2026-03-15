@@ -12,6 +12,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="12"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -20,13 +22,17 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Deck Type:" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="CmbDeckType" IsEditable="False"/>
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Image x:Name="LogoImage" Width="80" Height="36" Stretch="Uniform" Margin="0,0,8,0"/>
+            <Image x:Name="LogoImage2" Width="80" Height="36" Stretch="Uniform"/>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Deck Type:" VerticalAlignment="Center"/>
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbDeckType" IsEditable="False"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Gauge:" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbGauge" IsEditable="False"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Gauge:" VerticalAlignment="Center"/>
+        <ComboBox Grid.Row="4" Grid.Column="1" x:Name="CmbGauge" IsEditable="False"/>
 
-        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="OK" Width="80" Margin="0,0,10,0" Click="BtnOk_Click" IsDefault="True"/>
             <Button Content="Cancel" Width="80" Click="BtnCancel_Click" IsCancel="True"/>
         </StackPanel>

@@ -25,6 +25,10 @@ public partial class EditJoistDialog : Window
     public EditJoistDialog()
     {
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (Helpers.LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (Helpers.LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
         DataContext = Model;
         CmbLibrary.ItemsSource = LibraryOptions.Select(x => x.Label).ToList();
         CmbLibrary.SelectedIndex = 0;

@@ -3,6 +3,16 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.102.2" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Logo\trojan_steel_llc_logo.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Logo\trojan_steel_llc_logo.jpg</Link>
+    </Content>
+    <Content Include="..\Logo\1656059722254.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Logo\1656059722254.jpg</Link>
+    </Content>
+  </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -43,19 +53,29 @@
   </PropertyGroup>
   <Target Name="DeployToAutoCAD" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <MakeDir Directories="$(AutoCADPluginsPath)\Contents" />
+    <MakeDir Directories="$(AutoCADPluginsPath)\Contents\Logo" />
     <ItemGroup>
       <DeployFiles Include="$(OutputPath)*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\" />
+    <ItemGroup>
+      <LogoFiles Include="$(OutputPath)Logo\*.jpg" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LogoFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\Logo\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(ProjectDir)PackageContents.xml" DestinationFolder="$(AutoCADPluginsPath)\" />
     <Message Importance="high" Text="Plugin zkopírován do: $(AutoCADPluginsPath)\Contents\ - spusťte AutoCAD pro načtení." />
   </Target>
   <Target Name="DeployAfterBuild" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <MakeDir Directories="$(AutoCADPluginsPath)\Contents" />
+    <MakeDir Directories="$(AutoCADPluginsPath)\Contents\Logo" />
     <ItemGroup>
       <DeployFiles Include="$(OutputPath)*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(DeployFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\" />
+    <ItemGroup>
+      <LogoFiles Include="$(OutputPath)Logo\*.jpg" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LogoFiles)" DestinationFolder="$(AutoCADPluginsPath)\Contents\Logo\" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(ProjectDir)PackageContents.xml" DestinationFolder="$(AutoCADPluginsPath)\" />
     <Message Importance="high" Text="Deploy: $(AutoCADPluginsPath)\Contents\" />
   </Target>

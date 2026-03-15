@@ -71,7 +71,11 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="5" Text="Edit Joist Smart Data" FontSize="18" FontWeight="SemiBold"/>
+        <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Image x:Name="LogoImage" Width="80" Height="36" Stretch="Uniform" Margin="0,0,8,0"/>
+            <Image x:Name="LogoImage2" Width="80" Height="36" Stretch="Uniform"/>
+        </StackPanel>
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="4" Text="Edit Joist Smart Data" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Library:"/>
         <ComboBox Grid.Row="2" Grid.Column="1" x:Name="CmbLibrary" IsEditable="False" SelectionChanged="CmbLibrary_SelectionChanged"/>

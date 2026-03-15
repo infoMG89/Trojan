@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using LineProperties.Helpers;
 
 namespace LineProperties.UI;
 
@@ -16,6 +17,10 @@ public partial class ConnectionCodeDialog : Window
     public ConnectionCodeDialog(string connectionId, IReadOnlyList<CodeItem> codes)
     {
         InitializeComponent();
+        Loaded += (_, _) => {
+            if (LogoHelper.GetTrojanLogoSource() is { } t) LogoImage.Source = t;
+            if (LogoHelper.GetHmrLogoSource() is { } h) LogoImage2.Source = h;
+        };
         IdText.Text = connectionId;
         CodeCombo.ItemsSource = codes;
         CodeCombo.SelectedIndex = 0;
